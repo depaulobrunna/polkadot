@@ -88,7 +88,7 @@
 
 //"global" variables
 extern SPI_HandleTypeDef hspi1;
-extern UART_HandleTypeDef huart1;
+//extern UART_HandleTypeDef huart1;
 extern volatile unsigned char xdone_flag;
 extern volatile unsigned char rx_flag;
 

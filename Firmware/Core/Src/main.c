@@ -487,8 +487,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		xdone_flag = 1;
 	}
 	if(GPIO_Pin == SPI2_AS_Pin && PI_NODE){
-		HAL_SPI_TransmitReceive(&hspi2, cmd_tx_buf, cmd_rx_buf, tx_len, 1000);
-		while (HAL_SPI_GetState(&hspi2) != HAL_SPI_STATE_READY){}
+		HAL_SPI_TransmitReceive(&hspi1, cmd_tx_buf, cmd_rx_buf, tx_len, 1000);
+		while (HAL_SPI_GetState(&hspi1) != HAL_SPI_STATE_READY){}
 		if(!spi_rx_tx && PI_NODE){ //!HAL_GPIO_ReadPin(SPI2_AS_GPIO_Port, SPI2_AS_Pin) && PI_NODE){		//wait for AS pin
 			spi_flag = 0;
 			DEBUG_PRINT("Received command:");
@@ -526,7 +526,7 @@ uint8_t spi_transfer(uint8_t data[], uint8_t length){
     while (!spi_flag){
     }
     HAL_GPIO_WritePin(DATA_RDY_GPIO_Port, DATA_RDY_Pin, GPIO_PIN_RESET);
-    HAL_SPI_Transmit(&hspi2, data, length,100);
+    HAL_SPI_Transmit(&hspi1, data, length,100);
     HAL_Delay(50);
     spi_rx_tx = 0;
     tx_len = 5;

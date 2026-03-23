@@ -60,6 +60,18 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define LED_Pin GPIO_PIN_8
 #define LED_GPIO_Port GPIOB
+
+#define XDONE_Pin			GPIO_PIN_8
+#define XDONE_Port			GPIOB
+
+#define SPI2_AS_Pin			GPIO_PIN_8
+#define SPI2_AS_Port		GPIOB
+
+#define DATA_RDY_Pin		GPIO_PIN_8
+#define DATA_RDY_GPIO_Port	GPIOB
+
+#define SX1276_CS_Pin		GPIO_PIN_8
+#define SX1276_CS_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

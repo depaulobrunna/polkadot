@@ -201,7 +201,7 @@ void DEBUG_PRINT(char * format, ...){
 	va_list args;
 	va_start (args, format);
 	uint8_t stringsize = vsnprintf(buffer, 256, format, args);
-	HAL_UART_Transmit(&huart1,(uint8_t *)buffer,stringsize, 100);
+//	HAL_UART_Transmit(&huart1,(uint8_t *)buffer,stringsize, 100);
 	va_end (args);
 }
 
