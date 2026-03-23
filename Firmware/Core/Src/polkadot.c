@@ -10,6 +10,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+//variables
+uint32_t my_id; 	//this node's ID
+uint32_t my_sequence_number; 	//this node's sequence number
+uint32_t rreq_id; 				//id for RREQ
+
+uint8_t rx_data[256];			//Buffer for holding received data
+
+uint32_t unicast_entries;
+struct unicast_route_table_entry unicast_route_table[UNICAST_TABLE_LENGTH];
+
+struct noroute_table_entry noroute_table[NOROUTE_QUEUE_MAX_ENTRIES];						//TODO, this needs to be a linkedlist
+uint8_t noroute_table_entries;
+
+uint32_t rreq_table[RREQ_TABLE_MAX_ENTRIES];
+uint8_t rreq_pointer;
+
+
 //initialize this as a mesh node
 uint8_t polkadot_init(uint32_t id){
 	DEBUG_PRINT("Initializing Polkadot Node\n\r");
