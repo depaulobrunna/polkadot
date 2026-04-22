@@ -3,9 +3,14 @@
 #include "sx1276.h"		//SX1276 header file
 #include <stdint.h>
 #include "main.h"
-#include "stm32f4xx.h"
 #include <stdarg.h>
 #include <stdio.h>
+
+#if __has_include("stm32f4xx.h")
+#include "stm32f4xx.h"
+#else /* "stm32wle5xx.h" */
+#include "stm32wle5xx.h"
+#endif /* "stm32wle5xx.h" */
 
 //SPI function mappings
 uint8_t SX1276_Write_Register(uint8_t address, uint8_t data){

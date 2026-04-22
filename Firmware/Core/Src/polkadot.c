@@ -2,13 +2,24 @@
 //Header file with data types and other stuff
 #include "polkadot.h"
 #include "packet_formats.h"
-#include "sx1276.h"
 #include <stdint.h>
 #include "main.h"
-#include "stm32f4xx.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#if __has_include("stm32f4xx.h")
+#include "stm32f4xx.h"
+#include "sx1276.h"
+#else /* "stm32wle5xx.h" */
+#include "stm32wle5xx.h"
+#include "subghz_phy_app.h"
+#include "radio.h"
+#include "sys_app.h"
+#endif /* "stm32wle5xx.h" */
+
+uint8_t
+DATA_RX_HANDLER(struct data_packet rx_pkt);
 
 //variables
 uint32_t my_id; 	//this node's ID
@@ -61,7 +72,11 @@ uint8_t mesh_transmit(uint32_t destination_id, uint8_t data[], uint8_t data_leng
 		noroute_table[noroute_table_entries].data_length = data_length;
 		noroute_table_entries ++;
 	}
+#if __has_include("stm32f4xx.h")
 	SX1276_Start_Receive();		//wait for a new packet
+#else
+	Radio.Rx(RX_TIMEOUT_VALUE);
+#endif
 	return SUCCESS;
 }
 
@@ -82,7 +97,12 @@ uint8_t mesh_send_data(uint32_t destination_id, uint32_t dest_seq_num, uint8_t *
 	DEBUG_PRINT("Transmitting a Data Packet to Node %d\n\r", destination_id);
 	uint8_t packet_arr[DATA_BASE_PKT_LEN + data_length];
 	uint8_t result = format_packet_data(tosend, packet_arr);
+
+#if __has_include("stm32f4xx.h")
 	result &= SX1276_Transmit_Blocking(packet_arr, DATA_BASE_PKT_LEN + data_length);
+#else
+	Radio.Send(packet_arr, RREP_BASE_PKT_LEN);
+#endif
 	return result;
 }
 
@@ -104,7 +124,12 @@ uint8_t mesh_send_rreq(uint32_t destination_id, uint32_t source_id, uint32_t sou
 
 	uint8_t packet_arr[RREQ_BASE_PKT_LEN];
 	uint8_t result = format_packet_rreq(tosend, packet_arr);
+
+#if __has_include("stm32f4xx.h")
 	result &= SX1276_Transmit_Blocking(packet_arr, RREQ_BASE_PKT_LEN);
+#else
+	Radio.Send(packet_arr, RREP_BASE_PKT_LEN);
+#endif
 	return result;
 }
 
@@ -122,7 +147,12 @@ uint8_t mesh_send_rrep(uint32_t receiver_id, uint32_t destination_id, uint32_t s
 
 	uint8_t packet_arr[RREP_BASE_PKT_LEN];
 	uint8_t result = format_packet_rrep(tosend, packet_arr);
+
+#if __has_include("stm32f4xx.h")
 	result &= SX1276_Transmit_Blocking(packet_arr, RREP_BASE_PKT_LEN);
+#else
+	Radio.Send(packet_arr, RREP_BASE_PKT_LEN);
+#endif
 	return result;
 }
 
@@ -378,7 +408,7 @@ uint8_t receive_packet_handler(uint8_t packet_data[], uint8_t plength){
 	}
 	else {
 		DEBUG_PRINT("Invalid Packet Type (data[0] = %d)\n\r", packet_data[0]);
-		return FAIL;
+		return 0;
 	}
 	return SUCCESS;
 }
@@ -470,3 +500,28 @@ uint32_t get_UID(){		//generates a unique 32 bit integer by hashing the unique d
 	uint32_t id3 = *((uint32_t*) 0x1FFF7A18);
 	return id1 ^ id2 ^ id3;
 }
+
+uint8_t
+DATA_RX_HANDLER(struct data_packet rx_pkt)
+{
+	DEBUG_PRINT("=== DATA PACKET RECEIVED ===\n\r");
+	DEBUG_PRINT("Transmitter ID: %lu\n\r", rx_pkt.transmitter_id);
+	DEBUG_PRINT("Receiver ID:    %lu\n\r", rx_pkt.receiver_id);
+	DEBUG_PRINT("Destination ID: %lu\n\r", rx_pkt.destination_id);
+	DEBUG_PRINT("Source ID:      %lu\n\r", rx_pkt.source_id);
+	DEBUG_PRINT("Num Hops:       %d\n\r",  rx_pkt.num_hops);
+	DEBUG_PRINT("Dest Seq Num:   %lu\n\r", rx_pkt.destination_sequence_number);
+	DEBUG_PRINT("Data Length:    %d\n\r",  rx_pkt.data_length);
+
+	DEBUG_PRINT("Payload: [");
+	for (uint8_t i = 0; i < rx_pkt.data_length; i++) {
+		DEBUG_PRINT("%02X", rx_pkt.packet_data[i]);
+		if (i < rx_pkt.data_length - 1) {
+			DEBUG_PRINT(" ");
+		}
+	}
+	DEBUG_PRINT("]\n\r");
+
+	return 1;
+}
+

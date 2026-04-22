@@ -1,8 +1,10 @@
+#if __has_include("stm32f4xx.h")
+#include "stm32f4xx.h"
 /*
  * Header file for SX1276. Includes register definitions, and #defines
  */
 #include <stdint.h>
-#include "stm32f4xx.h"
+
 
 #ifndef INC_SX1276_H_
 #define INC_SX1276_H_
@@ -113,3 +115,7 @@ void printarr(uint8_t toprint[], uint8_t len);
 void DEBUG_PRINT(char * format, ...);
 
 #endif /* INC_SX1276_H_ */
+
+#else /* "stm32wle5xx.h" */
+#include "stm32wle5xx.h"
+#endif /* "stm32wle5xx.h" */
